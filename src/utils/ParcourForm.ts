@@ -1,7 +1,6 @@
 import type { Page } from 'puppeteer'
 import {
     Commands,
-    Plugins,
     type DigitalData,
     type Parcours,
     type ProcessType,
@@ -9,6 +8,7 @@ import {
 import Click from './Trigger/Click.js'
 import Type from './Trigger/Type.js'
 import ExecutePlugins from './ExecutePlugins.js'
+import ExecuteScript from './Trigger/ExecuteScript.js'
 
 type IProps = {
     page: Page
@@ -56,7 +56,6 @@ const ParcourForm = async ({ page, process }: IProps): Promise<Parcours[]> => {
         previousUrl = currentUrl
         previousProcessName = digitalData.process.processName
 
-        console.log(cleanTarget, cmd.command)
         switch (cmd.command) {
             case Commands.CLICK:
                 await Click({ page, selector: cleanTarget })
@@ -64,6 +63,9 @@ const ParcourForm = async ({ page, process }: IProps): Promise<Parcours[]> => {
                 break
             case Commands.TYPE:
                 await Type({ page, selector: cleanTarget, value: cmd.value })
+                break
+            case Commands.SCRIPT:
+                await ExecuteScript({ page, script: cmd.value })
                 break
             case Commands.CHANGING_PAGE:
             case Commands.CUSTOM:

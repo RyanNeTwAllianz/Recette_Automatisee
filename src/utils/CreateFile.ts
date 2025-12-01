@@ -3,11 +3,10 @@ import type { Parcours, ProcessType } from '../types.js'
 
 type IProps = {
     parcours: Parcours[]
-    process: ProcessType
+    fileName: string
 }
 
-const CreateFile = async ({ parcours, process }: IProps) => {
-    const fileName = './output/' + process.name + '.json'
+const CreateFile = async ({ parcours, fileName }: IProps) => {
     await writeFile(fileName, JSON.stringify(parcours), 'utf-8')
 
     console.log('File created => ' + fileName)

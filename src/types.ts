@@ -5,6 +5,7 @@ export enum Commands {
     OPEN = 'open',
     CUSTOM = 'custom',
     CHANGING_PAGE = 'changing_page',
+    SCRIPT = 'script',
 }
 
 export enum Plugins {
@@ -27,6 +28,7 @@ export type ProcessType = {
     name: string
     url: string
     acceptCookies: boolean
+    reloadBrowser: boolean
     plugins: Plugins[]
     size: WindowSize
     tests: {

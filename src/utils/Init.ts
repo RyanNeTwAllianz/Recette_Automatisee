@@ -1,12 +1,6 @@
-import puppeteer from 'puppeteer'
-import Click from './Trigger/Click.js'
-import type { ProcessType } from '../types.ts'
+import puppeteer, { Browser, Page } from 'puppeteer'
 
-type IProps = {
-    process: ProcessType
-}
-
-const Init = async ({ process }: IProps) => {
+const Init = async (): Promise<{ browser: Browser }> => {
     const browser = await puppeteer.launch({
         headless: false,
         devtools: false,
@@ -22,22 +16,7 @@ const Init = async ({ process }: IProps) => {
     })
     console.log('Browser launched')
 
-    const pages = await browser.pages()
-    const page = pages.length > 0 ? pages[0] : await browser.newPage()
-
-    if (!!!page) throw new Error('Page not found')
-
-    await page.goto(process.url, { waitUntil: 'networkidle2', timeout: 100000 })
-
-    await Click({
-        page,
-        selector: process.acceptCookies
-            ? '#az-cmp-btn-accept'
-            : '#az-cmp-btn-refuse',
-    })
-    console.log('Cookies ' + process.acceptCookies ? 'accpeted' : 'refused')
-
-    return { browser, page }
+    return { browser }
 }
 
 export default Init

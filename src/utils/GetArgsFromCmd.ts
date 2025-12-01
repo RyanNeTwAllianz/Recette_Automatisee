@@ -1,8 +1,8 @@
 import minimist from 'minimist'
 
-const GetArgsFromCmd = (): { file: string } => {
+const GetArgsFromCmd = (): string[] => {
     const args = minimist(process.argv.slice(2))
-    return { file: args._[0] ?? 'auto' }
+    return args._ ?? []
 }
 
 export default GetArgsFromCmd
