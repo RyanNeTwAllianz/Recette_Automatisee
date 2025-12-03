@@ -13,6 +13,8 @@ export enum Plugins {
     RED = 'red',
     PDF = 'pdf',
     CONSOLE = 'console',
+    NETWORK = 'network',
+    TRACKING = 'tracking',
 }
 
 export enum WindowSize {
@@ -24,6 +26,11 @@ export enum WindowSize {
 export enum ParcoursStepName {
     DEVIS_FQ = 'devis fq',
     DEVIS_PL = 'devis pl',
+    MER_EMAIL_FQ = 'mer email fq',
+    MER_EMAIL_Pl = 'mer email pl',
+    WCB = 'wcb',
+    MER_AGENT_FQ = "mer agent fq",
+    MER_AGENT_PL = "mer agent pl",
 }
 
 export type ProcessType = {
@@ -81,4 +88,10 @@ export type ConsoleType = {
     type: string
     text: string
     loc: string
+}
+
+export type NetWorkType = {
+    url: string
+    method: string
+    headers: Record<string, string>
 }

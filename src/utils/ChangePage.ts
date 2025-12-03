@@ -1,6 +1,7 @@
 import type { Browser, Page } from 'puppeteer'
 import type { ProcessType } from '../types.js'
 import Click from './Trigger/Click.js'
+import NetworkListener from './NetworkListener.js'
 
 type IProps = {
     browser: Browser
@@ -17,6 +18,7 @@ const ChangePage = async ({
     if (!!!page) throw new Error('Page not found')
 
     await page.goto(process.url, { waitUntil: 'networkidle2', timeout: 100000 })
+    await NetworkListener({ page, process })
 
     await Click({
         page,

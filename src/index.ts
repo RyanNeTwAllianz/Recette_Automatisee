@@ -10,6 +10,7 @@ import RefactoParcours from './utils/RefactoParcours.js'
 import GenerateHTML from './utils/GenerateHTML.js'
 import ChangePage from './utils/ChangePage.js'
 import ConsoleListener from './utils/ConsoleListener.js'
+import NetworkListener from './utils/NetworkListener.js'
 
 const Main = async () => {
     const files = GetArgsFromCmd()
@@ -19,6 +20,7 @@ const Main = async () => {
     for (const file of files) {
         const process = await ReadFile(file)
         CreateFolder('./screenshots/' + process.name)
+        CreateFolder('./output/' + process.name)
 
         if (process.reloadBrowser) browser = (await Init()).browser
 
@@ -26,17 +28,34 @@ const Main = async () => {
             process.url + (process.tests[0]?.commands[0]?.target ?? '')
 
         const { page } = await ChangePage({ browser, process })
+        const net = await NetworkListener({ page, process })
         const csl = await ConsoleListener({ page, process })
         const parcours = await ParcourForm({ page, process })
 
-        const fileName = './output/' + process.name + '.json'
-        await CreateFile({ array: parcours, fileName })
+        await CreateFile({
+            array: parcours,
+            fileName: './output/' + process.name + '/' + process.name + '.json',
+        })
         await GeneratePdf({ parcours, page, process })
-        await End({ browser, process })
+        await End({ browser, process, page })
 
         await CreateFile({
             array: csl,
-            fileName: './output/csl_' + process.name + '.json',
+            fileName:
+                './output/' +
+                process.name +
+                '/console_' +
+                process.name +
+                '.json',
+        })
+        await CreateFile({
+            array: net,
+            fileName:
+                './output/' +
+                process.name +
+                '/network_' +
+                process.name +
+                '.json',
         })
         const refactoParcours = RefactoParcours(parcours)
         await GenerateHTML({ data: refactoParcours, process })

@@ -1,4 +1,5 @@
 # Parcours Forms
+
 ## Installation
 
 ```bash
@@ -12,15 +13,21 @@
 ```bash
     npm i
 ```
+
 To Setup:
+
 ```bash
     npm run setup
 ```
+
 To run:
+
 ```bash
     npm run start
 ```
+
 To build:
+
 ```bash
     npm run build
 ```

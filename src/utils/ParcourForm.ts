@@ -34,10 +34,13 @@ const ParcourForm = async ({ page, process }: IProps): Promise<Parcours[]> => {
                 timeout: 500,
                 visible: false,
             })
-            await page.waitForSelector('app-fast-quote, app-normal-quote', {
-                timeout: 500,
-                visible: true,
-            })
+            await page.waitForSelector(
+                'app-fast-quote, app-normal-quote, app-end-of-journey',
+                {
+                    timeout: 500,
+                    visible: true,
+                }
+            )
             await new Promise((resolve) => setTimeout(resolve, 5000))
         } catch (e) {}
 
@@ -83,6 +86,9 @@ const ParcourForm = async ({ page, process }: IProps): Promise<Parcours[]> => {
                 break
             case Commands.SCRIPT:
                 await ExecuteScript({ page, script: cmd.value })
+                break
+            case Commands.CHANGING_PAGE:
+            case Commands.CUSTOM:
                 break
             default:
                 console.log('Skipped command:', { cmd })

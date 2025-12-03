@@ -153,6 +153,7 @@ const GenerateHTML = async ({ data, process }: IProps): Promise<void> => {
   `
 
     for (const step of data) {
+      if (!step.parcours.length) continue
         html += `
       <div class="step">
         <div class="step-name">${step.stepName}</div>
@@ -164,7 +165,7 @@ const GenerateHTML = async ({ data, process }: IProps): Promise<void> => {
             <strong>${parcours.stepName}</strong>
             <span class="field">URL : ${parcours.currentUrl}</span>
             <span class="field">Previous URL : ${parcours.previousUrl}</span>
-            <img src="../${parcours.screenPath}" alt="Capture d'écran" onclick="openModal('../${parcours.screenPath}')"/>
+            <img src="../../${parcours.screenPath}" alt="Capture d'écran" onclick="openModal('../../${parcours.screenPath}')"/>
         </div>
         `
         }
@@ -201,7 +202,10 @@ const GenerateHTML = async ({ data, process }: IProps): Promise<void> => {
     </html>
   `
 
-    await writeFileSync('./output/' + process.name + '.html', html)
+    await writeFileSync(
+        './output/' + process.name + '/html_' + process.name + '.html',
+        html
+    )
     console.log('HTML created !')
 }
 
