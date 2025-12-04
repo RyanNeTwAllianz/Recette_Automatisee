@@ -7,6 +7,15 @@ type IProps = {
     process: ProcessType
 }
 
+const shouldBlock = (url: string, blocked: string[]) => {
+    try {
+        const host = new URL(url).hostname
+        return blocked.some((d) => host.includes(d))
+    } catch {
+        return false
+    }
+}
+
 const NetworkListener = async ({
     page,
     process,
@@ -14,109 +23,97 @@ const NetworkListener = async ({
 }: IProps): Promise<NetWorkType[]> => {
     if (!process.plugins.includes(Plugins.NETWORK)) return []
 
-    let net: NetWorkType[] = []
-    const handleRequest = async (
+    const net: NetWorkType[] = []
+    const blocked = process.blockedDomains.map((d) => `*${d}*`)
+
+    const addRequest = (
         url: string,
         method: string,
         headers: Record<string, string>,
         body = '',
         initiator = ''
     ) => {
-        net.push({
-            url,
-            status: '',
-            method,
-            headers,
-            body,
-            initiator,
-        })
+        net.push({ url, method, headers, body, status: '', initiator })
     }
 
-    await page.setRequestInterception(true)
-    page.on('request', async (request) => {
-        const url = request.url()
-        console.log('Normal ', { url })
-        if (process.blockedDomains.includes(url)) {
-            console.log('Aborted URL:', url)
-            return request.abort().catch(() => {})
+    const client = await page.target().createCDPSession()
+    await client.send('Network.enable')
+    await client.send('Network.setBlockedURLs', { urls: blocked })
+
+    client.on('Network.requestWillBeSent', (e: any) => {
+        const r = e.request
+        if (!r?.url) return
+
+        addRequest(
+            r.url,
+            r.method,
+            r.headers || {},
+            r.postData ?? '',
+            e.initiator?.type || 'other'
+        )
+    })
+
+    client.on('Network.responseReceived', (e: any) => {
+        const i = net.findIndex((req) => req.url === e.response.url)
+        if (i !== -1) net[i] && (net[i].status = e.response.status.toString())
+    })
+
+    page.on('request', async (req) => {
+        const url = req.url()
+
+        if (shouldBlock(url, process.blockedDomains)) {
+            return req.abort().catch(() => {})
         }
 
         let body = ''
         try {
-            if (request.method() === 'POST' && request.hasPostData()) {
-                body = (await request.fetchPostData()) ?? ''
+            if (req.method() === 'POST' && req.hasPostData()) {
+                body = (await req.fetchPostData()) ?? ''
             }
         } catch {}
 
-        await handleRequest(
+        addRequest(
             url,
-            request.method(),
-            request.headers(),
+            req.method(),
+            req.headers(),
             body,
-            request.initiator()?.toString() ?? ''
+            req.initiator()?.type || ''
         )
 
-        request.continue().catch(() => {})
+        req.continue().catch(() => {})
     })
 
-    page.on('response', async (response) => {
-        const request = response.request()
-        const index = net.findIndex(
-            (entry) =>
-                entry.url === request.url() && entry.method === request.method()
-        )
-
-        if (index !== -1) {
-            net[index] && (net[index].status = response.status().toString())
-        }
-    })
+    await page.setRequestInterception(true)
 
     const setupWorker = async (target: any) => {
-        if (target.type() === 'service_worker') {
-            const client = await target.createCDPSession()
-            await client.send('Network.enable')
+        if (target.type() !== 'service_worker') return
 
-            client.on('Network.requestWillBeSent', (event: any) => {
-                const url = event?.request?.url
-                console.log('SW: ', { url })
-                if (process.blockedDomains.includes(url)) {
-                    console.log('Aborted SW URL:', url)
-                    client
-                        .send('Network.failRequest', {
-                            requestId: event.requestId,
-                            errorReason: 'BlockedByClient',
-                        })
-                        .catch(() => {})
-                    return
-                }
+        const sw = await target.createCDPSession()
+        await sw.send('Network.enable')
+        await sw.send('Network.setBlockedURLs', { urls: blocked })
 
-                handleRequest(
-                    event?.request?.url,
-                    event?.request?.method,
-                    event?.request?.headers,
-                    event?.request?.postData ?? '',
-                    event?.initiator?.type ?? 'service_worker'
+        sw.on('Network.requestWillBeSent', (e: any) => {
+            const r = e.request
+            if (r?.url) {
+                addRequest(
+                    r.url,
+                    r.method,
+                    r.headers || {},
+                    r.postData ?? '',
+                    'service_worker'
                 )
-            })
+            }
+        })
 
-            client.on('Network.responseReceived', async (event: any) => {
-                const index = net.findIndex(
-                    (entry) =>
-                        entry.url === event.request?.url &&
-                        entry.method === event.request?.method
-                )
-                if (index !== -1) {
-                    net[index] &&
-                        (net[index].status = event.response?.status.toString())
-                }
-            })
-        }
+        sw.on('Network.responseReceived', (e: any) => {
+            const i = net.findIndex((req) => req.url === e.response.url)
+            if (i !== -1)
+                net[i] && (net[i].status = e.response.status.toString())
+        })
     }
 
-    const targets = browser.targets()
-    for (const target of targets) {
-        await setupWorker(target)
-    }
+    browser.targets().forEach(setupWorker)
+    browser.on('targetcreated', setupWorker)
 
     return net
 }
