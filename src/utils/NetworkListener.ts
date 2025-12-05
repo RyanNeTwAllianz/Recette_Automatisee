@@ -25,7 +25,7 @@ const NetworkListener = async ({
     if (!process.plugins.includes(Plugins.NETWORK)) return []
 
     const net: NetWorkType[] = []
-    const blocked = process.blockedUrls?.map((d) => `*${d}*`)
+    const blocked = (process.blockedUrls ?? []).map((d) => `*${d}*`)
 
     const addRequest = (
         url: string,
@@ -35,12 +35,21 @@ const NetworkListener = async ({
         body = '',
         initiator = ''
     ) => {
-        net.push({ url, method, headers, timestamp, body, status: '', initiator })
+        net.push({
+            url,
+            method,
+            headers,
+            timestamp,
+            body,
+            status: '',
+            initiator,
+        })
     }
 
     const client = await page.target().createCDPSession()
     await client.send('Network.enable')
-    if (blocked?.length) await client.send('Network.setBlockedURLs', { urls: blocked })
+    if (blocked?.length)
+        await client.send('Network.setBlockedURLs', { urls: blocked })
 
     client.on('Network.requestWillBeSent', (e: any) => {
         const r = e.request

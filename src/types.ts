@@ -89,6 +89,7 @@ export type RefacoParcours = {
 export type ConsoleType = {
     type: string
     text: string
+    args: unknown[]
     loc: string
 }
 

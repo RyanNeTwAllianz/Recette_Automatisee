@@ -13,13 +13,26 @@ const ConsoleListener = async ({
     if (!process.plugins.includes(Plugins.CONSOLE)) return []
 
     let csl: ConsoleType[] = []
-    page.on('console', (message) =>
+    page.on('console', async (message) => {
+        const args = message.args()
+        const resolvedArgs = []
+
+        for (const arg of args) {
+            try {
+                const val = await arg.jsonValue()
+                resolvedArgs.push(val)
+            } catch {
+                resolvedArgs.push('[unserializable]')
+            }
+        }
+
         csl.push({
             type: message.type().toUpperCase(),
             text: message.text(),
+            args: resolvedArgs,
             loc: JSON.stringify(message.location()),
         })
-    )
+    })
 
     return csl
 }

@@ -31,3 +31,10 @@ To build:
 ```bash
     npm run build
 ```
+
+
+### INFOS
+
+Commands.SCRIPT: Execute script in browser console
+
+Commands.CUSTOM: Execute script in project

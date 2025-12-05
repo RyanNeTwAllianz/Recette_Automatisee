@@ -205,7 +205,10 @@ const GenerateHTML = async ({ data, process }: IProps): Promise<void> => {
     </html>
   `
 
-    await writeFileSync(`./output/${process.name}/html_${GetTodayDateAndTime()}.html`, html)
+    await writeFileSync(
+        `./output/${process.name}/html_${GetTodayDateAndTime()}.html`,
+        html
+    )
     console.log('HTML created !')
 }
 
