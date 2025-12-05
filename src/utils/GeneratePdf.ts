@@ -1,6 +1,7 @@
 import type { Page } from 'puppeteer'
 import { Plugins, type Parcours, type ProcessType } from '../types.js'
 import { readFileSync, existsSync } from 'node:fs'
+import GetTodayDateAndTime from './GetTodayDateAndTime.js'
 
 type IProps = {
     parcours: Parcours[]
@@ -65,7 +66,7 @@ const GeneratePdf = async ({ parcours, page, process }: IProps) => {
 
     await page.setContent(html, { waitUntil: 'load', timeout: 60000 })
     await page.pdf({
-        path: `./output/${process.name}/pdf.pdf`,
+        path: `./output/${process.name}/pdf_${GetTodayDateAndTime()}.pdf`,
         format: 'A4',
         printBackground: true,
     })

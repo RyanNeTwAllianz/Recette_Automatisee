@@ -39,7 +39,7 @@ export type ProcessType = {
     url: string
     acceptCookies: boolean
     reloadBrowser: boolean
-    blockedDomains: string[]
+    blockedUrls?: string[]
     plugins: Plugins[]
     size: WindowSize
     tests: {
@@ -98,5 +98,6 @@ export type NetWorkType = {
     method: string
     initiator: string
     headers: Record<string, string>
+    timestamp: string
     body: string
 }

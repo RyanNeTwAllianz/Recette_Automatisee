@@ -1,5 +1,6 @@
 import { writeFileSync } from 'node:fs'
 import { Plugins, type ProcessType, type RefacoParcours } from '../types.js'
+import GetTodayDateAndTime from './GetTodayDateAndTime.js'
 
 type IProps = {
     data: RefacoParcours[]
@@ -204,7 +205,7 @@ const GenerateHTML = async ({ data, process }: IProps): Promise<void> => {
     </html>
   `
 
-    await writeFileSync(`./output/${process.name}/html.html`, html)
+    await writeFileSync(`./output/${process.name}/html_${GetTodayDateAndTime()}.html`, html)
     console.log('HTML created !')
 }
 

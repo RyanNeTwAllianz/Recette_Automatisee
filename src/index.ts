@@ -10,7 +10,7 @@ import RefactoParcours from './utils/RefactoParcours.js'
 import GenerateHTML from './utils/GenerateHTML.js'
 import ChangePage from './utils/ChangePage.js'
 import ConsoleListener from './utils/ConsoleListener.js'
-import NetworkListener from './utils/NetworkListener.js'
+import GetTodayDateAndTime from './utils/GetTodayDateAndTime.js'
 
 const Main = async () => {
     const files = GetArgsFromCmd()
@@ -19,14 +19,15 @@ const Main = async () => {
 
     for (const file of files) {
         const process = await ReadFile(file)
+        process.name = file
+        process.url =
+            process.url + (process.tests[0]?.commands[0]?.target ?? '')
+
         CreateFolder('./screenshots/' + process.name)
         CreateFolder('./output/' + process.name)
 
         if (reloadBrowser) browser = (await Init({ process })).browser
         if (!browser) continue
-
-        process.url =
-            process.url + (process.tests[0]?.commands[0]?.target ?? '')
 
         const { page, net } = await ChangePage({ browser, process })
         const csl = await ConsoleListener({ page, process })
@@ -35,17 +36,18 @@ const Main = async () => {
         await GeneratePdf({ parcours, page, process })
         await End({ browser, process, page })
 
+        const time = GetTodayDateAndTime()
         await CreateFile({
             array: parcours,
-            fileName: `./output/${process.name}/parcours.json`,
+            fileName: `./output/${process.name}/parcours_${time}.json`,
         })
         await CreateFile({
             array: csl,
-            fileName: `./output/${process.name}/console.json`,
+            fileName: `./output/${process.name}/console_${time}.json`,
         })
         await CreateFile({
             array: net,
-            fileName: `./output/${process.name}/network.json`,
+            fileName: `./output/${process.name}/network_${time}.json`,
         })
 
         const refactoParcours = RefactoParcours(parcours)

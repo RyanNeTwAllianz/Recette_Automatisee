@@ -1,5 +1,6 @@
 import { Browser, type Page } from 'puppeteer'
 import { Plugins, type NetWorkType, type ProcessType } from '../types.js'
+import GetTodayDateAndTime from './GetTodayDateAndTime.js'
 
 type IProps = {
     browser: Browser
@@ -10,7 +11,7 @@ type IProps = {
 const shouldBlock = (url: string, blocked: string[]) => {
     try {
         const host = new URL(url).hostname
-        return blocked.some((d) => host.includes(d))
+        return blocked?.some((d) => host.includes(d))
     } catch {
         return false
     }
@@ -24,30 +25,31 @@ const NetworkListener = async ({
     if (!process.plugins.includes(Plugins.NETWORK)) return []
 
     const net: NetWorkType[] = []
-    const blocked = process.blockedDomains.map((d) => `*${d}*`)
+    const blocked = process.blockedUrls?.map((d) => `*${d}*`)
 
     const addRequest = (
         url: string,
         method: string,
         headers: Record<string, string>,
+        timestamp: string,
         body = '',
         initiator = ''
     ) => {
-        net.push({ url, method, headers, body, status: '', initiator })
+        net.push({ url, method, headers, timestamp, body, status: '', initiator })
     }
 
     const client = await page.target().createCDPSession()
     await client.send('Network.enable')
-    await client.send('Network.setBlockedURLs', { urls: blocked })
+    if (blocked?.length) await client.send('Network.setBlockedURLs', { urls: blocked })
 
     client.on('Network.requestWillBeSent', (e: any) => {
         const r = e.request
         if (!r?.url) return
-
         addRequest(
             r.url,
             r.method,
             r.headers || {},
+            e.timestamp?.toString(),
             r.postData ?? '',
             e.initiator?.type || 'other'
         )
@@ -61,7 +63,7 @@ const NetworkListener = async ({
     page.on('request', async (req) => {
         const url = req.url()
 
-        if (shouldBlock(url, process.blockedDomains)) {
+        if (shouldBlock(url, process.blockedUrls ?? [])) {
             return req.abort().catch(() => {})
         }
 
@@ -76,6 +78,7 @@ const NetworkListener = async ({
             url,
             req.method(),
             req.headers(),
+            GetTodayDateAndTime(),
             body,
             req.initiator()?.type || ''
         )
@@ -99,6 +102,7 @@ const NetworkListener = async ({
                     r.url,
                     r.method,
                     r.headers || {},
+                    r.timestamp?.toString(),
                     r.postData ?? '',
                     'service_worker'
                 )
