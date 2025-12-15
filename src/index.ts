@@ -17,7 +17,7 @@ const Main = async () => {
     let browser = null
     let reloadBrowser = true
 
-    for (const file of files) {
+    for (const [index, file] of files.entries()) {
         const process = await ReadFile(file)
         process.name = file
         process.url =
@@ -52,7 +52,7 @@ const Main = async () => {
 
         const refactoParcours = RefactoParcours(parcours)
         await GenerateHTML({ data: refactoParcours, process })
-        reloadBrowser = process.reloadBrowser
+        reloadBrowser = files.length === index ? false : process.reloadBrowser
     }
 }
 

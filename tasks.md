@@ -1,0 +1,111 @@
+## ✅ Priorités principales
+
+* [x] Utiliser le **nom des fichiers `.json`** pour définir le nom des parcours
+  ↳ Ignorer complètement les noms de parcours définis **à l’intérieur** des fichiers `.json`
+
+* [ ] Augmenter le **timeout général à 1 minute**
+
+* [ ] Accélérer la navigation **sans baisser la fiabilité**
+
+* [ ] Améliorer la **fiabilité globale**
+
+---
+
+## 🐞 Bug critique à analyser
+
+* [ ] Corriger le bug aléatoire où le script **se bloque au milieu d’un parcours**
+  ↳ Impression qu’une commande est zappée
+  ↳ Exemple : *radio bouton civilité MRH FQ*
+
+* [ ] Analyser et comprendre **pourquoi ce problème arrive de manière aléatoire**
+  (c’est le **seul problème bloquant** identifié)
+
+---
+
+## 🍪 Gestion des cookies
+
+* [ ] Corriger la logique quand `acceptCookies = true`
+  ↳ Créer **au chargement de la page** les deux cookies :
+
+  * `OptanonConsent`
+  * `OptanonAlertBoxClosed`
+
+* [ ] Changer la logique quand `acceptCookies = false`
+  ↳ **Ne rien faire**
+
+---
+
+## 📤 Exports & logs
+
+* [x] Ajouter un **timestamp** dans l’export du **network**
+
+* [x] Faire en sorte que la **console exporte aussi le contenu des objets** (pas seulement `[Object]`)
+
+---
+
+## ▶️ Exécution des scripts
+
+* [ ] Pouvoir lancer **plusieurs scripts depuis un dossier** avec `*`
+  Exemples :
+
+  * `debug/*`
+  * `dev-aep/*`
+
+* [ ] Améliorer les **messages console** :
+
+  * [ ] Lister la **commande en cours**
+  * [ ] Identifier clairement **quand une commande ne fonctionne pas**
+  * [x] Supprimer le message `"skipped commande"`
+
+* [x] Rendre **optionnel** `blockedUrls`
+
+---
+
+## 🖥️ Configuration navigateur
+
+* [ ] Définir comment **configurer la taille de l’écran**
+  ↳ (viewport / window size)
+
+* [ ] Pouvoir contrôler si la **fenêtre se ferme ou non à la fin**
+
+  * [ ] Est-ce une option dans les `.json` ?
+  * [ ] Ou une option au lancement du script ?
+
+---
+
+## 📂 Organisation des outputs
+
+* [x] Changer l’organisation des outputs
+
+* [x] Utiliser **un seul dossier `output/` pour tous les fichiers**
+
+* [ ] Nommer tous les fichiers avec le format :
+
+  ```
+  <type_output>_<nom_parcours>_<timestamp yymmdd-hhMMss>
+  ```
+
+  Exemple :
+
+  ```
+  network_auto-fq-ta-debug-dev_251205-100223
+  ```
+
+---
+
+## ⚙️ Options & configuration avancée
+
+* [ ] Lancer plusieurs tests **en parallèle**
+
+  * [ ] Ne pas utiliser directement `suites.parallel`
+  * [ ] Ajouter une **option dédiée au lancement des scripts**
+
+* [ ] Rendre **optionnelle** la propriété `target` pour les commandes `"script"`
+
+* [x] Rendre **optionnelles** les propriétés suivantes :
+
+  * [ ] `name`
+  * [ ] `version`
+  * [ ] `suites.name`
+  * [ ] `suite.timeout`
+  * [ ] `suites.tests`

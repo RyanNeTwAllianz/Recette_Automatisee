@@ -95,7 +95,6 @@ const ParcourForm = async ({ page, process }: IProps): Promise<Parcours[]> => {
                 }
                 break
             default:
-                console.log('Skipped command:', { cmd })
                 break
         }
         await new Promise((resolve) => setTimeout(resolve, 500))
