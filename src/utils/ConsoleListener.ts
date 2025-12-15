@@ -30,7 +30,7 @@ const ConsoleListener = async ({
             type: message.type().toUpperCase(),
             text: message.text(),
             args: resolvedArgs,
-            loc: JSON.stringify(message.location()),
+            loc: message.location(),
         })
     })
 

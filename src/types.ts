@@ -1,3 +1,5 @@
+import type { ConsoleMessageLocation } from 'puppeteer'
+
 export enum Commands {
     CLICK = 'click',
     TYPE = 'type',
@@ -34,21 +36,48 @@ export enum ParcoursStepName {
     MER_AGENT_PL = 'mer agent pl',
 }
 
+type CommandType = {
+    command: Commands
+    value: string
+    target: string
+    comment: string
+}
+
 export type ProcessType = {
     name: string
     url: string
     acceptCookies: boolean
+    urlParams?: string
     reloadBrowser: boolean
     blockedUrls?: string[]
     plugins: Plugins[]
-    size: WindowSize
+    size: string
     tests: {
-        commands: {
-            command: Commands
-            target: string
-            value: string
-        }[]
+        commands: CommandType[]
     }[]
+}
+
+export type CookieType = {
+    comment: string
+    name: string
+    domain: string
+    path: string
+    'max-age': string
+    value: string
+}
+
+export type BashType = {
+    testsNameSuffix: string
+    reloadBrowser: boolean
+    size: string
+    parallelTests: number
+    cookies?: CookieType[]
+    blockedUrls?: string[]
+    urlParams?: string
+    plugins?: Plugins[]
+    doBefore?: CommandType[]
+    doAfter?: CommandType[]
+    tests: string[]
 }
 
 export type DigitalData = {
@@ -79,6 +108,7 @@ export type Parcours = DigitalData['process'] &
         command: Commands
         previousProcessName: string
         skip: boolean
+        comment: string
     }
 
 export type RefacoParcours = {
@@ -90,7 +120,7 @@ export type ConsoleType = {
     type: string
     text: string
     args: unknown[]
-    loc: string
+    loc: ConsoleMessageLocation
 }
 
 export type NetWorkType = {

@@ -9,6 +9,7 @@ import Click from './Trigger/Click.js'
 import Type from './Trigger/Type.js'
 import ExecutePlugins from './ExecutePlugins.js'
 import ExecuteScript from './Trigger/ExecuteScript.js'
+import AddJavaScript from './Trigger/AddJavaScript.js'
 
 type IProps = {
     page: Page
@@ -26,17 +27,16 @@ const ParcourForm = async ({ page, process }: IProps): Promise<Parcours[]> => {
         command: Commands.CHANGING_PAGE,
         target: '',
         value: '',
+        comment: '',
     })
 
     for (let i = 0; i < process.tests[0].commands.length; i++) {
         const cmd = process.tests[0].commands[i]
         if (!cmd) continue
 
-        const cleanTarget = cmd.target.replace('css=', '')
-
         if ([Commands.CLICK, Commands.TYPE].includes(cmd.command)) {
             try {
-                await page.waitForSelector(cleanTarget, {
+                await page.waitForSelector(cmd.target, {
                     timeout: 30000,
                     visible: true,
                 })
@@ -53,7 +53,7 @@ const ParcourForm = async ({ page, process }: IProps): Promise<Parcours[]> => {
             currentUrl,
             previousUrl,
             index: i,
-            target: cleanTarget,
+            target: cmd.target,
             command: cmd.command,
             skip: currentUrl === previousUrl,
             screenPath: '',
@@ -62,6 +62,7 @@ const ParcourForm = async ({ page, process }: IProps): Promise<Parcours[]> => {
             previousProcessName,
             pageKey: digitalData?.azfr?.page?.pageKey,
             prevPageKey: digitalData?.azfr?.page?.prevPageKey,
+            comment: cmd.comment,
         }
 
         if (
@@ -71,28 +72,27 @@ const ParcourForm = async ({ page, process }: IProps): Promise<Parcours[]> => {
                 Commands.SCRIPT,
             ].includes(cmd.command)
         )
-            await ExecutePlugins({ process, page, cleanTarget, parcour })
+            await ExecutePlugins({ process, page, target: cmd.target, parcour })
 
         parcours.push(parcour)
         previousUrl = currentUrl
         previousProcessName = digitalData?.process?.processName
 
+        console.log(
+            `Command ${cmd.command} targetting ${cmd.target} ${cmd.value ? `with value ${cmd.value}` : ''} ${cmd.comment ? `With comment ${cmd.comment}` : ''}`
+        )
         switch (cmd.command) {
             case Commands.CLICK:
-                await Click({ page, selector: cleanTarget })
+                await Click({ page, selector: cmd.target })
                 break
             case Commands.TYPE:
-                await Type({ page, selector: cleanTarget, value: cmd.value })
+                await Type({ page, selector: cmd.target, value: cmd.value })
                 break
             case Commands.SCRIPT:
                 await ExecuteScript({ page, script: cmd.value })
                 break
             case Commands.CUSTOM:
-                try {
-                    await eval(cmd.value)
-                } catch (e) {
-                    console.log('Error while executing CUSTOM FUNCTION', { e })
-                }
+                await AddJavaScript(cmd.value)
                 break
             default:
                 break

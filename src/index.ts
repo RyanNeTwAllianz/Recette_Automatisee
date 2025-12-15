@@ -11,48 +11,56 @@ import GenerateHTML from './utils/GenerateHTML.js'
 import ChangePage from './utils/ChangePage.js'
 import ConsoleListener from './utils/ConsoleListener.js'
 import GetTodayDateAndTime from './utils/GetTodayDateAndTime.js'
+import type { BashType, ProcessType } from './types.js'
+import CreateCookie from './utils/CreateCookie.js'
+import FillProcessWithBash from './utils/FillProcessWithBash.js'
 
 const Main = async () => {
-    const files = GetArgsFromCmd()
+    const bashes = GetArgsFromCmd()
     let browser = null
     let reloadBrowser = true
 
-    for (const [index, file] of files.entries()) {
-        const process = await ReadFile(file)
-        process.name = file
-        process.url =
-            process.url + (process.tests[0]?.commands[0]?.target ?? '')
+    for (const b of bashes) {
+        const bash = await ReadFile<BashType>(b)
 
-        CreateFolder('./screenshots/' + process.name)
-        CreateFolder('./output/' + process.name)
+        for (const [index, file] of bash.tests.entries()) {
+            let process = await ReadFile<ProcessType>(file)
+            process.name = file
+            process = FillProcessWithBash({ bash, process })
 
-        if (reloadBrowser) browser = (await Init({ process })).browser
-        if (!browser) continue
+            CreateFolder('./screenshots/' + process.name)
 
-        const { page, net } = await ChangePage({ browser, process })
-        const csl = await ConsoleListener({ page, process })
-        const parcours = await ParcourForm({ page, process })
+            if (reloadBrowser) browser = (await Init({ process })).browser
+            if (!browser) continue
 
-        await GeneratePdf({ parcours, page, process })
-        await End({ browser, process, page })
+            await CreateCookie({ browser, cookies: bash.cookies })
+            const { page, net } = await ChangePage({ browser, process })
+            const csl = await ConsoleListener({ page, process })
+            const parcours = await ParcourForm({ page, process })
 
-        const time = GetTodayDateAndTime()
-        await CreateFile({
-            array: parcours,
-            fileName: `./output/${process.name}/parcours_${time}.json`,
-        })
-        await CreateFile({
-            array: csl,
-            fileName: `./output/${process.name}/console_${time}.json`,
-        })
-        await CreateFile({
-            array: net,
-            fileName: `./output/${process.name}/network_${time}.json`,
-        })
+            await GeneratePdf({ parcours, page, process })
+            reloadBrowser =
+                bash.tests.length === index + 1 ? true : process.reloadBrowser
+            process.reloadBrowser = reloadBrowser
+            await End({ browser, process, page })
 
-        const refactoParcours = RefactoParcours(parcours)
-        await GenerateHTML({ data: refactoParcours, process })
-        reloadBrowser = files.length === index ? false : process.reloadBrowser
+            const time = GetTodayDateAndTime()
+            await CreateFile({
+                array: parcours,
+                fileName: `./output/parcours_${process.name}_${time}.json`,
+            })
+            await CreateFile({
+                array: csl,
+                fileName: `./output/console_${process.name}_${time}.json`,
+            })
+            await CreateFile({
+                array: net,
+                fileName: `./output/network_${process.name}_${time}.json`,
+            })
+
+            const refactoParcours = RefactoParcours(parcours)
+            await GenerateHTML({ data: refactoParcours, process })
+        }
     }
 }
 

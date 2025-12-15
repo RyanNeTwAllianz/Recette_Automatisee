@@ -1,6 +1,5 @@
 import type { Browser, Page } from 'puppeteer'
 import type { NetWorkType, ProcessType } from '../types.js'
-import Click from './Trigger/Click.js'
 import TrackingListener from './TrackingListener.js'
 import NetworkListener from './NetworkListener.js'
 
@@ -22,14 +21,7 @@ const ChangePage = async ({
     await TrackingListener({ page, process })
 
     await page.goto(process.url, { waitUntil: 'networkidle2', timeout: 100000 })
-    await Click({
-        page,
-        selector: process.acceptCookies
-            ? '#az-cmp-btn-accept'
-            : '#az-cmp-btn-refuse',
-    })
 
-    console.log('Cookies ', process.acceptCookies ? 'accpeted' : 'denied')
     return { page, net }
 }
 

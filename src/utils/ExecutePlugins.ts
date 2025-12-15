@@ -5,22 +5,17 @@ import AddCss from './Trigger/AddCss.js'
 type IProps = {
     process: ProcessType
     page: Page
-    cleanTarget: string
+    target: string
     parcour: Parcours
 }
 
-const ExecutePlugins = async ({
-    process,
-    page,
-    parcour,
-    cleanTarget,
-}: IProps) => {
+const ExecutePlugins = async ({ process, page, parcour, target }: IProps) => {
     for (const plugin of process.plugins) {
         switch (plugin) {
             case Plugins.RED:
                 await AddCss({
                     page,
-                    selector: cleanTarget,
+                    selector: target,
                     style: 'border:3px solid red;',
                 })
                 break

@@ -32,9 +32,11 @@ To build:
     npm run build
 ```
 
-
 ### INFOS
 
 Commands.SCRIPT: Execute script in browser console
 
 Commands.CUSTOM: Execute script in project
+
+Window size : process.size or bash.size
+example 1366,768
