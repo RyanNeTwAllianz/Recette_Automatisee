@@ -10,7 +10,6 @@ const CreateCookie = async ({ browser, cookies }: IProps) => {
     if (!cookies?.length) return
 
     for (const cookie of cookies) await browser.setCookie(cookie)
-
     console.log('Cookies created')
 }
 

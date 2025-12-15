@@ -8,7 +8,7 @@ type IProps = {
     time?: number
 }
 
-const End = async ({ browser, process, page, time = 5000 }: IProps) => {
+const End = async ({ browser, process, page, time = 1000 }: IProps) => {
     await new Promise((resolve) => setTimeout(resolve, time))
 
     if (process.plugins.includes(Plugins.TRACKING)) await page.tracing.stop()

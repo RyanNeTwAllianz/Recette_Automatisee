@@ -6,25 +6,38 @@ type IProps = {
 }
 
 const FillProcessWithBash = ({ bash, process }: IProps): ProcessType => {
-    process.size = bash.size
-    process.reloadBrowser = bash.reloadBrowser
-    process.plugins = bash.plugins?.length
-        ? bash.plugins
-        : (process.plugins ?? [])
-    process.blockedUrls = bash.blockedUrls?.length
-        ? bash.blockedUrls
+    const {
+        plugins,
+        blockedUrls,
+        urlParams,
+        doAfter,
+        doBefore,
+        size,
+        reloadBrowser,
+    } = bash
+
+    process.size = size
+    process.reloadBrowser = reloadBrowser
+
+    process.plugins = plugins?.length ? plugins : (process.plugins ?? [])
+
+    process.blockedUrls = blockedUrls?.length
+        ? blockedUrls
         : (process.blockedUrls ?? [])
-    process.url = bash.urlParams
-        ? process.url + bash.urlParams
+
+    process.url = urlParams
+        ? process.url + urlParams
         : process.urlParams
           ? process.url + process.urlParams
           : process.url
-    bash.doBefore?.length &&
+
+    doBefore?.length &&
         process.tests[0] &&
-        process.tests[0].commands.unshift(...bash.doBefore)
-    bash.doAfter?.length &&
+        process.tests[0].commands.unshift(...doBefore)
+
+    doAfter?.length &&
         process.tests[0] &&
-        process.tests[0].commands.push(...bash.doAfter)
+        process.tests[0].commands.push(...doAfter)
     return process
 }
 

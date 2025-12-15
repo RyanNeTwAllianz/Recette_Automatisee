@@ -22,18 +22,6 @@
 
 ---
 
-## 🍪 Gestion des cookies
-
-- [ ] Corriger la logique quand `acceptCookies = true`
-      ↳ Créer **au chargement de la page** les deux cookies :
-    - `OptanonConsent`
-    - `OptanonAlertBoxClosed`
-
-- [ ] Changer la logique quand `acceptCookies = false`
-      ↳ **Ne rien faire**
-
----
-
 ## 📤 Exports & logs
 
 - [x] Ajouter un **timestamp** dans l’export du **network**

@@ -31,12 +31,14 @@ const ParcourForm = async ({ page, process }: IProps): Promise<Parcours[]> => {
     })
 
     for (let i = 0; i < process.tests[0].commands.length; i++) {
-        const cmd = process.tests[0].commands[i]
+        const cmd = process.tests[0] && process.tests[0].commands[i]
         if (!cmd) continue
 
-        if ([Commands.CLICK, Commands.TYPE].includes(cmd.command)) {
+        const { command, target, value, comment } = cmd
+
+        if ([Commands.CLICK, Commands.TYPE].includes(command)) {
             try {
-                await page.waitForSelector(cmd.target, {
+                await page.waitForSelector(target, {
                     timeout: 30000,
                     visible: true,
                 })
@@ -53,8 +55,8 @@ const ParcourForm = async ({ page, process }: IProps): Promise<Parcours[]> => {
             currentUrl,
             previousUrl,
             index: i,
-            target: cmd.target,
-            command: cmd.command,
+            target,
+            command,
             skip: currentUrl === previousUrl,
             screenPath: '',
             processName: digitalData?.process?.processName,
@@ -62,7 +64,7 @@ const ParcourForm = async ({ page, process }: IProps): Promise<Parcours[]> => {
             previousProcessName,
             pageKey: digitalData?.azfr?.page?.pageKey,
             prevPageKey: digitalData?.azfr?.page?.prevPageKey,
-            comment: cmd.comment,
+            comment,
         }
 
         if (
@@ -70,29 +72,29 @@ const ParcourForm = async ({ page, process }: IProps): Promise<Parcours[]> => {
                 Commands.OPEN,
                 Commands.SET_WINDOW_SIZE,
                 Commands.SCRIPT,
-            ].includes(cmd.command)
+            ].includes(command)
         )
-            await ExecutePlugins({ process, page, target: cmd.target, parcour })
+            await ExecutePlugins({ process, page, target, parcour })
 
         parcours.push(parcour)
         previousUrl = currentUrl
         previousProcessName = digitalData?.process?.processName
 
         console.log(
-            `Command ${cmd.command} targetting ${cmd.target} ${cmd.value ? `with value ${cmd.value}` : ''} ${cmd.comment ? `With comment ${cmd.comment}` : ''}`
+            `Command ${command} targetting ${target} ${value ? `with value ${value}` : ''} ${comment ? `With comment ${comment}` : ''}`
         )
-        switch (cmd.command) {
+        switch (command) {
             case Commands.CLICK:
-                await Click({ page, selector: cmd.target })
+                await Click({ page, selector: target })
                 break
             case Commands.TYPE:
-                await Type({ page, selector: cmd.target, value: cmd.value })
+                await Type({ page, selector: target, value })
                 break
             case Commands.SCRIPT:
-                await ExecuteScript({ page, script: cmd.value })
+                await ExecuteScript({ page, script: value })
                 break
             case Commands.CUSTOM:
-                await AddJavaScript(cmd.value)
+                await AddJavaScript(value)
                 break
             default:
                 break

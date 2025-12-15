@@ -22,40 +22,42 @@ const Main = async () => {
 
     for (const b of bashes) {
         const bash = await ReadFile<BashType>(b)
+        const { tests, cookies } = bash
 
-        for (const [index, file] of bash.tests.entries()) {
+        for (const [index, file] of tests.entries()) {
             let process = await ReadFile<ProcessType>(file)
-            process.name = file
+            let { name } = process
+            name = file
             process = FillProcessWithBash({ bash, process })
 
-            CreateFolder('./screenshots/' + process.name)
+            CreateFolder('./screenshots/' + name)
 
             if (reloadBrowser) browser = (await Init({ process })).browser
             if (!browser) continue
 
-            await CreateCookie({ browser, cookies: bash.cookies })
+            await CreateCookie({ browser, cookies })
             const { page, net } = await ChangePage({ browser, process })
             const csl = await ConsoleListener({ page, process })
             const parcours = await ParcourForm({ page, process })
 
             await GeneratePdf({ parcours, page, process })
             reloadBrowser =
-                bash.tests.length === index + 1 ? true : process.reloadBrowser
+                tests.length === index + 1 ? true : process.reloadBrowser
             process.reloadBrowser = reloadBrowser
             await End({ browser, process, page })
 
             const time = GetTodayDateAndTime()
             await CreateFile({
                 array: parcours,
-                fileName: `./output/parcours_${process.name}_${time}.json`,
+                fileName: `./output/parcours_${name}_${time}.json`,
             })
             await CreateFile({
                 array: csl,
-                fileName: `./output/console_${process.name}_${time}.json`,
+                fileName: `./output/console_${name}_${time}.json`,
             })
             await CreateFile({
                 array: net,
-                fileName: `./output/network_${process.name}_${time}.json`,
+                fileName: `./output/network_${name}_${time}.json`,
             })
 
             const refactoParcours = RefactoParcours(parcours)
