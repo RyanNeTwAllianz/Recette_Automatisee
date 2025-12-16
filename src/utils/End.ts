@@ -8,7 +8,7 @@ type IProps = {
     time?: number
 }
 
-const End = async ({ browser, process, page, time = 1000 }: IProps) => {
+const End = async ({ browser, process, page, time = 500 }: IProps) => {
     await new Promise((resolve) => setTimeout(resolve, time))
 
     if ((process.plugins ?? []).includes(Plugins.TRACKING))
@@ -17,7 +17,7 @@ const End = async ({ browser, process, page, time = 1000 }: IProps) => {
     if (process.reloadBrowser) {
         await browser.close()
         console.log('Browser Closed')
-        await new Promise((resolve) => setTimeout(resolve, 1000))
+        await new Promise((resolve) => setTimeout(resolve, time))
     }
 }
 
