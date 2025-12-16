@@ -3,40 +3,57 @@
 ## Installation
 
 ```bash
-  git clone https://github.com/RyanNeTwAllianz/Parcours.git
+  git clone https://github.com/RyanNeTwAllianz/Recette_Automatisee
 ```
 
 ```bash
-    cd Parcours
+    cd Recette_Automatisee
 ```
 
 ```bash
     npm i
 ```
 
-To Setup:
+```bash
+    npm run build
+```
 
 ```bash
     npm run setup
 ```
 
-To run:
-
 ```bash
-    npm run start
+    npm run start ...
 ```
 
-To build:
-
+Example :
 ```bash
-    npm run build
+    npm run sart _bash auto
 ```
 
-### INFOS
+## ENUMS
 
-Commands.SCRIPT: Execute script in browser console
+### Commands
 
-Commands.CUSTOM: Execute script in project
+| Parameter | Description                |
+| :-------- | :------------------------- |
+| Commands.SCRIPT | Execute script in browser console |
+| Commands.CUSTOM | Execute script in project |
+| Commands.CLICK | Click on element |
+| Commands.TYPE | Type on input |
 
-Window size : process.size or bash.size
-example 1366,768
+### Plugins
+
+| Parameter | Description                |
+| :-------- | :------------------------- |
+| Plugins.SCREENSHOT | Take screenshots |
+| Plugins.RED | Outline element in red |
+| Plugins.PDF | Generate Pdf |
+| Plugins.HTML | Generate HTML |
+| Plugins.CONSOLE | Generate console logs file |
+| Plugins.NETWORK | Return network logs file |
+| Plugins.TRACKING | Return tracking logs file |
+
+
+
+
