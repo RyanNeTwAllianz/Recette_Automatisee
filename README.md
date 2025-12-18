@@ -3,7 +3,7 @@
 ## Installation
 
 ```bash
-  git clone https://github.com/RyanNeTwAllianz/Recette_Automatisee
+    git clone https://github.com/RyanNeTwAllianz/Recette_Automatisee
 ```
 
 ```bash

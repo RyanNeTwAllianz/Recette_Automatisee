@@ -32,7 +32,7 @@ const TreatFile = async ({
     let { name } = process
     name = fileName
 
-    if (process.plugins?.includes(Plugins.SCREENSHOT))
+    if ((process.plugins ?? [])?.includes(Plugins.SCREENSHOT))
         CreateFolder('./screenshots/' + name)
 
     await CreateCookie({ browser, cookies: process.cookies })
